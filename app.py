@@ -10,23 +10,81 @@ from openai import OpenAI
 api_key = st.text_input("Enter your OpenAI API Key", type="password")
 
 # Categories and options
-points = ["tips", "hacks", "news", "guide", "analogy", "joke", "compare","up and downs", "funfacts"]
+points = ["tips", "hacks", "news", "guide", "analogy", "joke", "compare", "up and downs", "funfacts"]
 time_related = ["latest", "historic", "trends"]
 locations = ["culture", "country", "region", "religions", "beliefs"]
+
+# Hooks for personal posts
+hooks = [
+    "If you're lazy, but still want to do [X], try this...",
+    "I will never recover from learning about [X]...",
+    "If I died tomorrow, here's everything I'd want you to know about [X]...",
+    "Have you ever had to do [X] because of this reason?",
+    "The one secret experts don't want you to know about [X]...",
+    "Why I stopped doing [X] and you should too...",
+    "The ultimate guide to [X] that you never knew you needed...",
+    "If you could only do one thing to achieve [X], it would be this...",
+    "How [X] completely changed my perspective...",
+    "The best advice I ever got about [X]...",
+    "5 things nobody tells you about [X]...",
+    "I tried [X] for 30 days and this is what happened...",
+    "Why [X] is the key to achieving your goals...",
+    "You won't believe what [X] can do for you...",
+    "The shocking truth about [X] that everyone should know...",
+    "If you're struggling with [X], try this simple trick...",
+    "I wish I knew about [X] sooner...",
+    "The top 10 [X] hacks that will change your life...",
+    "How I went from beginner to expert in [X] in just 30 days...",
+    "Why [X] is more important than you think...",
+    "The unexpected benefits of [X]...",
+    "What nobody tells you about [X]...",
+    "The biggest mistake people make with [X]...",
+    "How to master [X] in 5 easy steps...",
+    "The real reason why [X] is so popular...",
+    "What I learned from [X] that changed my life...",
+    "The best way to approach [X] that you've never heard of...",
+    "How to make [X] work for you...",
+    "The surprising connection between [X] and personal growth...",
+    "Why [X] is the future of self-improvement...",
+    "The ultimate [X] checklist for success...",
+    "How to get started with [X] even if you're a complete beginner...",
+    "The most important thing to remember about [X]...",
+    "Why you should start focusing on [X] today...",
+    "The one thing you need to know about [X]...",
+    "How [X] can help you achieve your dreams...",
+    "The best-kept secret in [X]...",
+    "How to avoid the biggest mistake with [X]...",
+    "Why [X] is the best investment you can make...",
+    "The real story behind my journey with [X]...",
+    "What [X] taught me about life...",
+    "The most effective way to approach [X]...",
+    "Why [X] is worth the hype...",
+    "How to turn [X] into your biggest advantage...",
+    "The truth about [X] that nobody wants to admit...",
+    "Why [X] is more powerful than you think...",
+    "How to tackle [X] like a pro...",
+    "The secret to success with [X]...",
+    "Why [X] is the best thing I've ever done...",
+    "What you need to know about [X] before you start..."
+]
 
 # Initialize session state for posts data
 if 'posts_data' not in st.session_state:
     st.session_state['posts_data'] = pd.DataFrame(columns=['Date', 'Content', 'Platform', 'Status'])
 
 # Function to generate posts using the OpenAI API
-def generate_posts(api_key, platform, topic, style, num_posts):
+def generate_posts(api_key, platform, topic, style, num_posts, user_type):
     posts = []
     for _ in range(num_posts):
         chosen_points = random.choice(points) if random.random() > 0.5 else ""
         chosen_time = random.choice(time_related) if random.random() > 0.5 else ""
         chosen_location = random.choice(locations) if random.random() > 0.5 else ""
-
-        custom_prompt = f"Generate a unique {platform} post that contains interesting {chosen_points} in {chosen_time} for {chosen_location} for my followers about {topic} in {style} style"
+        
+        if user_type == "Personal":
+            chosen_hook = random.choice(hooks)
+            custom_prompt = f"Generate a unique {platform} post that contains interesting {chosen_points} in {chosen_time} for {chosen_location} with the {chosen_hook} for my followers about {topic} in {style} style"
+        else:
+            custom_prompt = f"Generate a unique {platform} post that contains interesting {chosen_points} in {chosen_time} for {chosen_location} for my followers about {topic} in {style} style"
 
         messages = [{"role": "system", "content": custom_prompt}]
         try:
@@ -42,7 +100,8 @@ def generate_posts(api_key, platform, topic, style, num_posts):
             return []
     return posts
 
-# User interface for selecting platform, entering topic, style, and number of posts
+# User interface for selecting user type, platform, entering topic, style, and number of posts
+user_type = st.radio('Select User Type', ['Company', 'Personal'])
 platform = st.selectbox('Select Social Media Platform', ['Twitter', 'LinkedIn'])
 topic = st.text_input('Enter Topic')
 style = st.text_input('Enter Writing Style')
@@ -51,7 +110,7 @@ generate_btn = st.button('Generate Posts')
 
 # Generate posts when button is clicked
 if generate_btn:
-    generated_posts = generate_posts(api_key, platform, topic, style, num_posts)
+    generated_posts = generate_posts(api_key, platform, topic, style, num_posts, user_type)
     new_rows = [{'Date': pd.Timestamp('now'), 'Content': post, 'Platform': platform, 'Status': 'Pending'} for post in generated_posts]
     st.session_state.posts_data = pd.concat([st.session_state.posts_data, pd.DataFrame(new_rows)], ignore_index=True)
 
@@ -110,3 +169,4 @@ if st.button('Generate Image for Selected Row'):
         zip_path = create_zip(selected_content, image_url)
         with open(zip_path, "rb") as file:
             st.download_button('Download Content and Image in Zip', file, file_name='final_posts.zip')
+
