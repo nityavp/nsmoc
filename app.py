@@ -83,7 +83,7 @@ def generate_posts(api_key, platform, topic, style, num_posts, user_type):
         
         if user_type == "Personal":
             chosen_hook = random.choice(hooks)
-            custom_prompt = f"Generate a unique {platform} post that contains interesting {chosen_points} in {chosen_time} for {chosen_location} with the {chosen_hook} for my followers about {topic} in {style} style"
+            custom_prompt = f"Generate a unique {platform} post that contains interesting {chosen_points} with the {chosen_hook} for my followers about {topic} in {style} style"
         else:
             custom_prompt = f"Generate a unique {platform} post that contains interesting {chosen_points} in {chosen_time} for {chosen_location} for my followers about {topic} in {style} style"
 
