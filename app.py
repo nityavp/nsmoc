@@ -116,7 +116,8 @@ if generate_btn:
     st.session_state.posts_data = pd.concat([st.session_state.posts_data, pd.DataFrame(new_rows)], ignore_index=True)
 
 # Display and edit the DataFrame containing generated posts
-edited_data = st.dataframe(st.session_state.posts_data, num_rows='dynamic', use_container_width=True)
+# Display the DataFrame containing generated posts
+edited_data = st.dataframe(st.session_state.posts_data, use_container_width=True)
 
 # Update session state with edited data
 st.session_state.posts_data = edited_data
